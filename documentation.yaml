@@ -1,0 +1,138 @@
+openapi: 3.0.1
+info:
+  title: "Delilah Restó"
+  description: "Restaurant API, for recieving and procesing orders, as well as creating new users, both clients and admins."
+  contact:
+    email: "merybaltar@gmail.com"
+  version: "1.0.0"
+
+servers: 
+  - url: https://localhost:3000/v1
+  - url: http://localhost:3000/v1
+
+tags:
+- name: "users"
+  description: "Operations related to the users"
+- name: "orders"
+  description: "Operations related to the orders"
+- name: "products"
+  description: "Operations related to the products"
+
+paths:
+  /users:
+    post:
+      tags:
+      - "users"
+      description: "Creates a new user account"
+      operationId: "addUser"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              items:
+                $ref: "#/components/schemas/new_user"
+      security: []
+      responses:
+        201:
+          $ref: "#/components/responses/succesful_request"
+          content:
+            application/json:
+              schema: 
+                $ref: "#/components/responses/created"
+        400:
+          $ref: "#/components/responses/bad_request"
+        409:
+          $ref: "#/components/responses/conflict"
+
+
+components:
+  schemas:
+    new_user:
+      type: object
+      properties:
+        username:
+          type: string
+          example: pepegrillo
+        full_name:
+          type: string
+          example: Pepe Grillo
+        email:
+          type: string
+          example: pepegrillo@losgrillos.com
+        phone_number:
+          type: integer
+          example: 1125467465
+        adress:
+          type: string
+          example: Calle Falsa 123
+        password:
+          type: string
+          example: mySup3rSecr3tPass12
+        is_admin:
+          type: integer
+          #minimum: 0
+          #maximun: 1
+          
+    created_user:
+      type: object
+      properties:
+        username:
+          type: string
+          example: pepegrillo
+        full_name:
+          type: string
+          example: Pepe Grillo
+        email:
+          type: string
+          example: pepegrillo@losgrillos.com
+        phone_number:
+          type: integer
+          example: 1125467465
+        adress:
+          type: string
+          example: Calle Falsa 123
+        is_admin:
+          type: boolean
+          example: true
+
+  responses: #borrar las que no se usen al final
+    succesful_request: #200
+      description: "The request was succesfully completed."
+    created: #201
+      description: "A new resource was succesfully created."
+    bad_request: #400
+      description: "The request was invalid."
+    unauthorized: #401
+      description: "Te request did not include an authentication token or the authentication tokn was expired."
+    forbidden: #403
+      description: "The client did not have permission to access the requested resource."
+    not_found: #404
+      description: "The requested resource was not found."
+    method_not_allowed: #405
+      description: "The HTTP method in the request was not supported by the resource."
+    conflict: #409 
+      description: "The request could not be completed due to a conflict."
+    internal_server_error: #500
+      description: "The request was not completed due to an internal error on the server side."
+    service_unavailable: #503
+      description: "The server was unavailable."
+
+
+
+#is_enabled: (en el user login)
+
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
