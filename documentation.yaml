@@ -23,7 +23,7 @@ paths:
     post:
       tags:
       - "users"
-      description: "Creates a new user account"
+      summary: "Creates a new user account."
       operationId: "addUser"
       requestBody:
         required: true
@@ -35,19 +35,447 @@ paths:
       security: []
       responses:
         201:
-          $ref: "#/components/responses/succesful_request"
+          description: "A new resource was succesfully created."
           content:
             application/json:
               schema: 
-                $ref: "#/components/responses/created"
+                $ref: "#/components/schemas/created_user"
         400:
           $ref: "#/components/responses/bad_request"
         409:
           $ref: "#/components/responses/conflict"
+        default:
+          $ref: "#/components/responses/internal_server_error"
 
+    get:
+      tags:
+        - "users"
+      summary: "Returns a list of existing users. Admin access only."
+      operationId: "listUsers"
+      responses:
+        200:
+          description: "The request was succesfully completed."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/user_list"
+        401:
+          $ref: "#/components/responses/unauthorized"
+        403:
+          $ref: "#/components/responses/forbidden"
+        default:
+          $ref: "#/components/responses/internal_server_error"
 
+  /users/login:
+    post:
+      tags:
+        - "users"
+      security: []
+      summary: "User log in to account."
+      operationId: "loginUser"
+      requestBody:
+        description: "Log in data"
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/log_in"
+        required: true
+      responses:
+        200:
+          description: "The request was succesfully completed."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/token"
+        400:
+          $ref: "#/components/responses/bad_request"
+        default:
+          $ref: "#/components/responses/internal_server_error"
+
+  /users/:id:
+    get:
+      tags: 
+        - "users"
+      summary: "Gets user by id. Admin access only."
+      operationId: "getUser"
+      parameters:
+        - name: id
+          in: path
+          description: "user id"
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: "The request was succesfully completed."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/full_user"
+        401:
+          $ref: "#/components/responses/unauthorized"
+        404:
+          $ref: "#/components/responses/not_found"
+        default:
+          $ref: "#/components/responses/internal_server_error"
+    
+    put:
+      tags:
+        - "users"
+      summary: "Modify user data."
+      operationId: "updateUser"
+      parameters:
+        - name: id
+          in: path
+          description: "user id"
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: "User data to be modified"
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/created_user"
+      responses:
+        200:
+          description: "The request was succesfully completed."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/new_user"
+        400:
+          $ref: "#/components/responses/bad_request"
+        401:
+          $ref: "#/components/responses/unauthorized"
+        403:
+          $ref: "#/components/responses/forbidden"
+        404:
+            $ref: "#/components/responses/not_found"
+        default:
+          $ref: "#/components/responses/internal_server_error"
+
+    patch:
+      tags:
+        - "users"
+      summary: "Give or remove users' admin privileges. Admin access only."
+      operationId: "makeAdmin"
+      parameters: 
+        - name: id
+          in: path
+          description: "user id"
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Set admin as true or false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/admin"
+      responses:
+        200:
+          description: "The request was succesfully completed."
+        400:
+          $ref: "#/components/responses/bad_request"
+        401:
+          $ref: "#/components/responses/unauthorized"
+        403:
+          $ref: "#/components/responses/forbidden"
+        404:
+            $ref: "#/components/responses/not_found"
+        default:
+          $ref: "#/components/responses/internal_server_error"
+
+    delete:
+      tags:
+        - "users"
+      summary: "Disables user account (does not delete)."
+      operationId: "deleteUser"
+      parameters:
+        - name: id
+          in: path
+          description: "user id"
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          $ref: "#/components/responses/succesful_request"
+        401:
+          $ref: "#/components/responses/unauthorized"
+        403:
+          $ref: "#/components/responses/forbidden"
+        404:
+            $ref: "#/components/responses/not_found"
+        default:
+          $ref: "#/components/responses/internal_server_error"
+
+  /orders:
+    post:
+      tags: 
+        - "orders"
+      summary: "Creates a new order."
+      operationId: "createOrder"
+      requestBody:
+        description: "Required input to create body"
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/new_order"
+        required: true
+      responses:
+        201:
+          description: "A new resource was succesfully created."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/created_order"
+        400:
+          $ref: "#/components/responses/bad_request"
+        401:
+          $ref: "#/components/responses/unauthorized"
+        default:
+          $ref: "#/components/responses/internal_server_error"
+
+    get:
+      tags:
+        - "orders"
+      summary: "Returns a list of existing orders (even concluded ones). Admin has access to all orders, non admin only to his/her own."    
+      operationId: "listOrders"
+      responses:
+        200:
+          description: "The request was succesfully completed."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/order_list"
+        401:
+          $ref: "#/components/responses/unauthorized"          
+        default:
+          $ref: "#/components/responses/internal_server_error"
+
+  /orders/:idOrder:
+    get:
+      tags:
+      - "orders"
+      summary: "Gets order by id."
+      operationId: "getOrder"
+      parameters:
+        - name: id
+          in: path
+          description: "order id"
+          required: true
+          schema: 
+            type: string
+      responses:
+        200:
+          description: "The request was succesfully completed."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/created_order"
+        401:
+          $ref: "#/components/responses/unauthorized"
+        404:
+          $ref: "#/components/responses/not_found"
+        default:
+          $ref: "#/components/responses/internal_server_error"
+
+    patch: 
+      tags:
+        - "orders"
+      summary: "Modifies order status. Admin access only."
+      operationId: "modifyOrder"
+      parameters:
+        - name: id
+          in: path
+          description: "order id"
+          required: true
+          schema: 
+            type: string
+      responses:
+        200:
+          description: "The request was succesfully completed."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/created_order"
+        400:
+          $ref: "#/components/responses/bad_request"
+        401:
+          $ref: "#/components/responses/unauthorized"
+        404:
+          $ref: "#/components/responses/not_found"
+        default:
+          $ref: "#/components/responses/internal_server_error"
+
+    delete:
+      tags:
+        - "orders"
+      summary: "Disables order. User can only do it before it changes status to confirmed. Admin can do it at any step."
+      operationId: "deleteOrder"
+      parameters:
+        - name: id
+          in: path
+          description: "order id"
+          required: true
+          schema: 
+            type: string
+      responses:
+        200:
+          $ref: "#/components/responses/succesful_request"
+        400:
+          $ref: "#/components/responses/bad_request"
+        401:
+          $ref: "#/components/responses/unauthorized"
+        403:
+          $ref: "#/components/responses/forbidden"
+        404:
+          $ref: "#/components/responses/not_found"
+        default:
+          $ref: "#/components/responses/internal_server_error"
+
+  /products:
+    post:
+      tags:
+        - "products"
+      summary: "Create a new product. Admin access only."
+      operationId: "createProduct"
+      requestBody:
+        description: "Required input to create product"
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/new_product"
+        required: true
+      responses:
+        201:
+          description: "A new resource was succesfully created."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/created_product"
+        400:
+          $ref: "#/components/responses/bad_request"
+        401:
+          $ref: "#/components/responses/unauthorized"
+        403:
+          $ref: "#/components/responses/forbidden"
+        default:
+          $ref: "#/components/responses/internal_server_error"
+
+    get:
+      tags:
+        - "products"
+      summary: "Returns a list of the existing products."
+      operationId: "listProducts"
+      responses:
+        200:
+          description: "The request was succesfully completed."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/product_list"
+        401:
+          $ref: "#/components/responses/unauthorized"
+        404:
+          $ref: "#/components/responses/not_found"
+        default:
+          $ref: "#/components/responses/internal_server_error"
+   
+  /products/:idProduct:
+    get:
+      tags:
+        - "products"
+      summary: "Gets product by id."
+      operationId: "getProduct"
+      parameters:
+        - name: id
+          in: path
+          description: "product id"
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: "The request was succesfully completed."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/created_product"
+        400:
+          $ref: "#/components/responses/bad_request"
+        404:
+          $ref: "#/components/responses/not_found"        
+        default:
+          $ref: "#/components/responses/internal_server_error"
+     
+    put:
+      tags:
+        - "products"
+      summary: "Modifies product data. Admin access only."
+      operationId: "modifyProduct"
+      parameters:
+        - name: id
+          in: path
+          description: "product id"
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: "Product data to be modified"
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/created_product"
+      responses:
+        200:
+          description: "The request was succesfully completed."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/created_product"
+        400:
+          $ref: "#/components/responses/bad_request"
+        401:
+          $ref: "#/components/responses/unauthorized"
+        403:
+          $ref: "#/components/responses/forbidden"
+        404:
+          $ref: "#/components/responses/not_found"        
+        default:
+          $ref: "#/components/responses/internal_server_error"
+
+    delete:
+      tags:
+        - "products"
+      summary: "Disables product (does not delete). Admin access only."
+      operationId: "disableProduct"
+      parameters:
+        - name: id
+          in: path
+          description: "product id"
+          required: true
+          schema:
+            type: string
+      responses:
+        200:   
+          $ref: "#/components/responses/succesful_request"
+        400:
+          $ref: "#/components/responses/bad_request"
+        401:
+          $ref: "#/components/responses/unauthorized"
+        403:
+          $ref: "#/components/responses/forbidden"
+        404:
+          $ref: "#/components/responses/not_found"
+        default:
+          $ref: "#/components/responses/internal_server_error"
+        
 components:
   schemas:
+  # user related
     new_user:
       type: object
       properties:
@@ -70,9 +498,8 @@ components:
           type: string
           example: mySup3rSecr3tPass12
         is_admin:
-          type: integer
-          #minimum: 0
-          #maximun: 1
+          type: boolean
+          example: true
           
     created_user:
       type: object
@@ -95,6 +522,172 @@ components:
         is_admin:
           type: boolean
           example: true
+    
+    full_user:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 12
+        username:
+          type: string
+          example: pepegrillo
+        full_name:
+          type: string
+          example: Pepe Grillo
+        email:
+          type: string
+          example: pepegrillo@losgrillos.com
+        phone_number:
+          type: integer
+          example: 1125467465
+        adress:
+          type: string
+          example: Calle Falsa 123
+        is_admin:
+          type: boolean
+          example: true
+        is_enabled:
+          type: boolean
+          example: true
+
+    user_list:
+      type: array
+      items:
+        $ref: "#/components/schemas/full_user"
+    
+    log_in:
+      type: object
+      properties:
+        username:
+          type: string
+          example: pepegrillo
+        email:
+          type: string
+          example: pepegrillo@losgrillos.com
+        password:
+          type: string
+          example: mySup3rSecr3tPass12
+
+    token:
+      type: object
+      properties:
+        token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+    
+    admin:
+      type: object
+      properties:
+        admin:
+          type: boolean
+          example: true
+
+  # order related
+    new_order: # corregir cuando tenga la base de datos
+      type: object
+      properties:
+        quantity:
+          type: number
+          example: 2
+        products: 
+          type: array
+          items:
+            $ref: "#/components/schemas/created_product"
+        payment_method:
+          type: number
+          example: 1
+        total_price:
+          type: integer
+          example: 390
+        id_user:
+          type: integer
+          format: int64
+          example: 16
+
+    created_order: # corregir cuando tenga la base de datos
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 18
+        status:
+          type: string
+          example: Nuevo
+        time_stamp:
+          type: string
+          format: date-time
+          example: "2020-05-26 21:02:15"
+        quantity:
+          type: number
+          example: 1
+        products: 
+          type: array
+          items:
+            $ref: "#/components/schemas/created_product"
+        payment_method:
+          type: number
+          example: 1
+        total_price:
+          type: integer
+          example: 390
+        id_user:
+          type: integer
+          format: int64
+          example: 16
+
+    order_list:
+      type: array
+      items:
+        $ref: "#/components/schemas/created_order"
+
+  # product related
+    new_product:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Hamburguesa King
+        price:
+          type: number
+          example: 450
+        img_url:
+          type: string
+          example: https://cocina-casera.com/wp-content/uploads/2016/11/hamburguesa-queso-receta.jpg
+        stock:
+          type: number
+          example: 200
+
+    created_product:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 10
+        name:
+          type: string
+          example: Hamburguesa King
+        price:
+          type: number
+          example: 390
+        img_url:
+          type: string
+          example: https://cocina-casera.com/wp-content/uploads/2016/11/hamburguesa-queso-receta.jpg
+        stock:
+          type: number
+          example: 10
+        enabled:
+          type: boolean
+          example: true
+
+    product_list:
+      type: array
+      items: 
+        $ref: "#/components/schemas/created_product"
+
 
   responses: #borrar las que no se usen al final
     succesful_request: #200
@@ -104,23 +697,16 @@ components:
     bad_request: #400
       description: "The request was invalid."
     unauthorized: #401
-      description: "Te request did not include an authentication token or the authentication tokn was expired."
+      description: "The request did not include an authentication token or the authentication token was expired."
     forbidden: #403
       description: "The client did not have permission to access the requested resource."
     not_found: #404
       description: "The requested resource was not found."
-    method_not_allowed: #405
-      description: "The HTTP method in the request was not supported by the resource."
     conflict: #409 
       description: "The request could not be completed due to a conflict."
-    internal_server_error: #500
+    internal_server_error: #500 / default
       description: "The request was not completed due to an internal error on the server side."
-    service_unavailable: #503
-      description: "The server was unavailable."
 
-
-
-#is_enabled: (en el user login)
 
           
           
