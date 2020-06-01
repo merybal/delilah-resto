@@ -56,6 +56,7 @@ CREATE TABLE orders (
     id_order INT PRIMARY KEY AUTO_INCREMENT,
     id_status INT NOT NULL,
     time_stamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    total_price INT NOT NULL,
     id_payment_method INT NOT NULL,
     id_user INT NOT NULL,
     CONSTRAINT fk_orders_status
