@@ -30,6 +30,11 @@ server.post('/users', async (req, res) => {
     });
 });
 
+//prueba, borrar
+server.post('/users', async (req, res) => {
+    
+})
+
 //Endpoint: /users/:idUser
 //GET: ver datos de usuario con idUser especifico.
 server.get('/users/:idUser', async (req, res) => {

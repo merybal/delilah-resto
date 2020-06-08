@@ -5,17 +5,15 @@ class Users {
 
     create(username, full_name, email, phone_number, adress, password) {
         const newUser = this.sequelize.query(
-            `INSERT INTO users (username, full_name, email, phone_number, adress, password, admin, enabled)
-             VALUES (:username, :full_name, :email, :phone_number, :adress, :password, :admin, :enabled)`,
+            `INSERT INTO users (username, full_name, email, phone_number, adress, password)
+             VALUES (:username, :full_name, :email, :phone_number, :adress, :password)`,
             { replacements: {
                 username,
                 full_name,
                 email,
                 phone_number,
                 adress,
-                password,
-                admin: false,
-                enabled: true
+                password
                 }
             }
         );
