@@ -20,7 +20,7 @@ CREATE TABLE users (
 );
 
 INSERT INTO users (id_user, username, full_name, email, phone_number, adress, password, admin, enabled)
-    VALUES (1, "pepegrillo", "Pepe Grillo", "pepegrillo@losgrillos.com", 1554546666, "Calle Falsa 123", "MySuperS3cret", true, true);
+    VALUES (1, "pepegrillo", "Pepe Grillo", "pepegrillo@losgrillos.com", 1554546666, "Calle Falsa 123", "ChangeThisPassword", true, true);
 --
 
 CREATE TABLE products (
