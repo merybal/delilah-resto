@@ -9,9 +9,9 @@ DROP TABLE IF EXISTS payment_methods;
 
 CREATE TABLE users (
     id_user INT PRIMARY KEY AUTO_INCREMENT,
-    username VARCHAR (255) NOT NULL,
+    username VARCHAR (255) NOT NULL UNIQUE,
     full_name VARCHAR (255) NOT NULL,
-    email VARCHAR (255) NOT NULL,
+    email VARCHAR (255) NOT NULL UNIQUE,
     phone_number INT NOT NULL,
     adress VARCHAR (255) NOT NULL,
     password VARCHAR (255) NOT NULL,
@@ -19,16 +19,15 @@ CREATE TABLE users (
     enabled BOOLEAN NOT NULL DEFAULT TRUE
 );
 
-INSERT INTO users (id_user, username, full_name, email, phone_number, adress, password, admin, enabled)
-    VALUES (1, "pepegrillo", "Pepe Grillo", "pepegrillo@losgrillos.com", 1554546666, "Calle Falsa 123", "ChangeThisPassword", true, true);
+INSERT INTO users (id_user, username, full_name, email, phone_number, adress, password, admin)
+    VALUES (1, "pepegrillo", "Pepe Grillo", "pepegrillo@losgrillos.com", 1554546666, "Calle Falsa 123", "ChangeThisPassword", true);
 --
 
 CREATE TABLE products (
     id_product INT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR (255) NOT NULL,
+    name VARCHAR (255) NOT NULL UNIQUE,
     image_url VARCHAR (255) NOT NULL,
-    price INT NOT NULL,
-    stock INT NOT NULL,
+    price INT NOT NULL
     enabled BOOLEAN NOT NULL DEFAULT TRUE
 );
 
@@ -76,8 +75,9 @@ INSERT INTO orders (id_order, id_status, id_payment_method, id_user)
 
 CREATE TABLE products_orders (
     id_products_orders INT PRIMARY KEY AUTO_INCREMENT,
-    id_product INT NOT NULL,
     id_order INT NOT NULL,
+    id_product INT NOT NULL,
+    product_quantity INT NOT NULL DEFAULT 1,
     CONSTRAINT fk_products_orders__products
     FOREIGN KEY (id_product)
     REFERENCES products(id_product) ON UPDATE NO ACTION ON DELETE NO ACTION,

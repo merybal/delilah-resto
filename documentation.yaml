@@ -35,7 +35,7 @@ paths:
       security: []
       responses:
         201:
-          description: "A new resource was succesfully created."
+          description: "Created"
           content:
             application/json:
               schema: 
@@ -43,7 +43,7 @@ paths:
         400:
           $ref: "#/components/responses/bad_request"
         409:
-          $ref: "#/components/responses/conflict"
+          description: "Username or email already in use"
         default:
           $ref: "#/components/responses/internal_server_error"
 
@@ -54,7 +54,7 @@ paths:
       operationId: "listUsers"
       responses:
         200:
-          description: "The request was succesfully completed."
+          description: "OK"
           content:
             application/json:
               schema:
@@ -92,14 +92,14 @@ paths:
         default:
           $ref: "#/components/responses/internal_server_error"
 
-  /users/:id:
+  /users/{id_user}:
     get:
       tags: 
         - "users"
       summary: "Gets user by id. Admin access only."
       operationId: "getUser"
       parameters:
-        - name: id
+        - name: id_user
           in: path
           description: "user id"
           required: true
@@ -107,7 +107,7 @@ paths:
             type: string
       responses:
         200:
-          description: "The request was succesfully completed."
+          description: "OK"
           content:
             application/json:
               schema:
@@ -115,7 +115,7 @@ paths:
         401:
           $ref: "#/components/responses/unauthorized"
         404:
-          $ref: "#/components/responses/not_found"
+          description: "ID {id_user} doesn't exist"
         default:
           $ref: "#/components/responses/internal_server_error"
     
@@ -125,7 +125,7 @@ paths:
       summary: "Modify user data."
       operationId: "updateUser"
       parameters:
-        - name: id
+        - name: id_user
           in: path
           description: "user id"
           required: true
@@ -136,7 +136,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/created_user"
+              $ref: "#/components/schemas/new_user"
       responses:
         200:
           description: "The request was succesfully completed."
@@ -161,7 +161,7 @@ paths:
       summary: "Give or remove users' admin privileges. Admin access only."
       operationId: "makeAdmin"
       parameters: 
-        - name: id
+        - name: id_user
           in: path
           description: "user id"
           required: true
@@ -193,7 +193,7 @@ paths:
       summary: "Disables user account (does not delete)."
       operationId: "deleteUser"
       parameters:
-        - name: id
+        - name: id_user
           in: path
           description: "user id"
           required: true
@@ -226,7 +226,7 @@ paths:
         required: true
       responses:
         201:
-          description: "A new resource was succesfully created."
+          description: "Created"
           content:
             application/json:
               schema:
@@ -245,13 +245,15 @@ paths:
       operationId: "listOrders"
       responses:
         200:
-          description: "The request was succesfully completed."
+          description: "OK"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/order_list"
         401:
-          $ref: "#/components/responses/unauthorized"          
+          $ref: "#/components/responses/unauthorized"
+        403:
+          $ref: "#/components/responses/forbidden"          
         default:
           $ref: "#/components/responses/internal_server_error"
 
@@ -270,15 +272,17 @@ paths:
             type: string
       responses:
         200:
-          description: "The request was succesfully completed."
+          description: "OK"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/created_order"
         401:
           $ref: "#/components/responses/unauthorized"
+        403:
+          $ref: "#/components/responses/forbidden"  
         404:
-          $ref: "#/components/responses/not_found"
+          description: "ID {id_order} doesn't exist"
         default:
           $ref: "#/components/responses/internal_server_error"
 
@@ -351,7 +355,7 @@ paths:
         required: true
       responses:
         201:
-          description: "A new resource was succesfully created."
+          description: "OK"
           content:
             application/json:
               schema:
@@ -362,6 +366,8 @@ paths:
           $ref: "#/components/responses/unauthorized"
         403:
           $ref: "#/components/responses/forbidden"
+        409:
+          description: "Product name already in use"
         default:
           $ref: "#/components/responses/internal_server_error"
 
@@ -428,10 +434,10 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/created_product"
+              $ref: "#/components/schemas/new_product"
       responses:
         200:
-          description: "The request was succesfully completed."
+          description: "OK"
           content:
             application/json:
               schema:
@@ -443,7 +449,7 @@ paths:
         403:
           $ref: "#/components/responses/forbidden"
         404:
-          $ref: "#/components/responses/not_found"        
+          description: "ID {id_product} doesn't exist"       
         default:
           $ref: "#/components/responses/internal_server_error"
 
@@ -462,8 +468,6 @@ paths:
       responses:
         200:   
           $ref: "#/components/responses/succesful_request"
-        400:
-          $ref: "#/components/responses/bad_request"
         401:
           $ref: "#/components/responses/unauthorized"
         403:
@@ -497,13 +501,14 @@ components:
         password:
           type: string
           example: mySup3rSecr3tPass12
-        is_admin:
-          type: boolean
-          example: true
           
     created_user:
       type: object
       properties:
+        id_user:
+          type: integer
+          format: int64
+          example: 1
         username:
           type: string
           example: pepegrillo
@@ -519,14 +524,11 @@ components:
         adress:
           type: string
           example: Calle Falsa 123
-        is_admin:
-          type: boolean
-          example: true
     
     full_user:
       type: object
       properties:
-        id:
+        id_user:
           type: integer
           format: int64
           example: 12
@@ -585,31 +587,28 @@ components:
           example: true
 
   # order related
-    new_order: # corregir cuando tenga la base de datos
+    new_order:
       type: object
       properties:
-        quantity:
-          type: number
-          example: 2
         products: 
           type: array
           items:
-            $ref: "#/components/schemas/created_product"
-        payment_method:
-          type: number
-          example: 1
+            $ref: "#/components/schemas/ordered_product"
         total_price:
           type: integer
           example: 390
+        id_payment_method:
+          type: number
+          example: 1
         id_user:
           type: integer
           format: int64
           example: 16
 
-    created_order: # corregir cuando tenga la base de datos
+    created_order:
       type: object
       properties:
-        id:
+        id_order:
           type: integer
           format: int64
           example: 18
@@ -620,19 +619,16 @@ components:
           type: string
           format: date-time
           example: "2020-05-26 21:02:15"
-        quantity:
-          type: number
-          example: 1
         products: 
           type: array
           items:
-            $ref: "#/components/schemas/created_product"
-        payment_method:
-          type: number
-          example: 1
+            $ref: "#/components/schemas/ordered_product"
         total_price:
           type: integer
           example: 390
+        payment_method:
+          type: number
+          example: 1
         id_user:
           type: integer
           format: int64
@@ -653,7 +649,7 @@ components:
         price:
           type: number
           example: 450
-        img_url:
+        image_url:
           type: string
           example: https://cocina-casera.com/wp-content/uploads/2016/11/hamburguesa-queso-receta.jpg
         stock:
@@ -663,7 +659,7 @@ components:
     created_product:
       type: object
       properties:
-        id:
+        id_product:
           type: integer
           format: int64
           example: 10
@@ -673,7 +669,7 @@ components:
         price:
           type: number
           example: 390
-        img_url:
+        image_url:
           type: string
           example: https://cocina-casera.com/wp-content/uploads/2016/11/hamburguesa-queso-receta.jpg
         stock:
@@ -683,6 +679,27 @@ components:
           type: boolean
           example: true
 
+    ordered_product:
+      type: object
+      properties:
+        id_product:
+          type: integer
+          format: int64
+          example: 10
+        name:
+          type: string
+          example: Hamburguesa King
+        price:
+          type: number
+          example: 390
+        image_url:
+          type: string
+          example: https://cocina-casera.com/wp-content/uploads/2016/11/hamburguesa-queso-receta.jpg
+        product_quantity:
+          type: integer
+          format: int64
+          example: 2
+
     product_list:
       type: array
       items: 
@@ -691,11 +708,11 @@ components:
 
   responses: #borrar las que no se usen al final
     succesful_request: #200
-      description: "The request was succesfully completed."
+      description: "OK"
     created: #201
-      description: "A new resource was succesfully created."
+      description: "Created"
     bad_request: #400
-      description: "The request was invalid."
+      description: "Please fill in all the fields"
     unauthorized: #401
       description: "The request did not include an authentication token or the authentication token was expired."
     forbidden: #403

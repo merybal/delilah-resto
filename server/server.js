@@ -4,6 +4,8 @@ const port = 3000;
 const bodyParser = require('body-parser');
 const Sequelize = require('sequelize');
 const sequelize = new Sequelize('mysql://root@localhost:3306/delilah_resto');
+const jwt = require('jsonwebtoken');
+const config = require('../configurations/configuratios.js');
 const modelUsers = require('../models/users.js');
 const users = new modelUsers.Users(sequelize);
 const modelProducts = require('../models/products.js');
@@ -11,7 +13,7 @@ const products = new modelProducts.Products(sequelize);
 const modelOrders = require('../models/orders.js');
 const orders = new modelOrders.Orders(sequelize);
 const modelMiddleware = require('../models/middleware.js');
-const { response } = require('express');
+//const { response } = require('express');
 const middleware = new modelMiddleware.Middleware(sequelize, users, products, orders);
 //http://localhost/phpmyadmin/
 
@@ -44,6 +46,17 @@ server.post('/users', middleware.userInputDataMissing, async (req, res) => {
 server.get('/users', async (req, res) => {
     const userList = await users.read();
     res.status(200).json(userList);
+});
+
+//Path /users/login
+server.post('/users/login', (req, res) => {
+    const { username, password } = req.body;
+    if (username == 'pepegrillo' && password == 'contrasenia') {
+        const payload = {
+            check: true
+        };
+        //const token = jwt.sign(payload, app.get())
+    }
 });
 
 //Path /users/:idUser
