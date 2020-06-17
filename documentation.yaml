@@ -88,7 +88,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/token"
         400:
-          description: "Incorrect username or password"
+          description: "Incorrect username or password / Please fill in all the fields"
         409:
           description: "User disabled"
         default:
@@ -98,7 +98,7 @@ paths:
     get:
       tags: 
         - "users"
-      summary: "Gets user by id. Admin access only."
+      summary: "Gets user by id. Admin can get all users, user can only get their own info."
       operationId: "getUser"
       parameters:
         - name: id_user
@@ -116,47 +116,13 @@ paths:
                 $ref: "#/components/schemas/full_user"
         401:
           $ref: "#/components/responses/unauthorized"
+        403:
+          $ref: "/components/responses/forbidden"
         404:
-          description: "ID {id_user} doesn't exist"
+          description: "ID {id_user} not found"
         default:
           $ref: "#/components/responses/internal_server_error"
     
-    put:
-      tags:
-        - "users"
-      summary: "Modify user data."
-      operationId: "updateUser"
-      parameters:
-        - name: id_user
-          in: path
-          description: "user id"
-          required: true
-          schema:
-            type: string
-      requestBody:
-        description: "User data to be modified"
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/new_user"
-      responses:
-        200:
-          description: "The request was succesfully completed."
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/new_user"
-        400:
-          $ref: "#/components/responses/bad_request"
-        401:
-          $ref: "#/components/responses/unauthorized"
-        403:
-          $ref: "#/components/responses/forbidden"
-        404:
-            $ref: "#/components/responses/not_found"
-        default:
-          $ref: "#/components/responses/internal_server_error"
-
     patch:
       tags:
         - "users"
@@ -169,47 +135,15 @@ paths:
           required: true
           schema:
             type: string
-      requestBody:
-        description: Set admin as true or false
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/admin"
       responses:
         200:
-          description: "The request was succesfully completed."
-        400:
-          $ref: "#/components/responses/bad_request"
+          description: "OK."
         401:
           $ref: "#/components/responses/unauthorized"
         403:
           $ref: "#/components/responses/forbidden"
         404:
-            $ref: "#/components/responses/not_found"
-        default:
-          $ref: "#/components/responses/internal_server_error"
-
-    delete:
-      tags:
-        - "users"
-      summary: "Disables user account (does not delete)."
-      operationId: "deleteUser"
-      parameters:
-        - name: id_user
-          in: path
-          description: "user id"
-          required: true
-          schema:
-            type: string
-      responses:
-        200:
-          $ref: "#/components/responses/succesful_request"
-        401:
-          $ref: "#/components/responses/unauthorized"
-        403:
-          $ref: "#/components/responses/forbidden"
-        404:
-            $ref: "#/components/responses/not_found"
+          description: "ID {id_user} not found"
         default:
           $ref: "#/components/responses/internal_server_error"
 
@@ -243,7 +177,7 @@ paths:
     get:
       tags:
         - "orders"
-      summary: "Returns a list of existing orders (even concluded ones). Admin has access to all orders, non admin only to his/her own."    
+      summary: "Returns a list of existing orders (even concluded ones). Admin has access to all orders, non admin only to their own."    
       operationId: "listOrders"
       responses:
         200:
@@ -253,20 +187,18 @@ paths:
               schema:
                 $ref: "#/components/schemas/order_list"
         401:
-          $ref: "#/components/responses/unauthorized"
-        403:
-          $ref: "#/components/responses/forbidden"          
+          $ref: "#/components/responses/unauthorized"      
         default:
           $ref: "#/components/responses/internal_server_error"
 
-  /orders/:idOrder:
+  /orders/{id_order}:
     get:
       tags:
       - "orders"
       summary: "Gets order by id."
       operationId: "getOrder"
       parameters:
-        - name: id
+        - name: id_order
           in: path
           description: "order id"
           required: true
@@ -284,7 +216,7 @@ paths:
         403:
           $ref: "#/components/responses/forbidden"  
         404:
-          description: "ID {id_order} doesn't exist"
+          description: "ID {id_order} not found"
         default:
           $ref: "#/components/responses/internal_server_error"
 
@@ -294,7 +226,7 @@ paths:
       summary: "Modifies order status. Admin access only."
       operationId: "modifyOrder"
       parameters:
-        - name: id
+        - name: id_order
           in: path
           description: "order id"
           required: true
@@ -302,7 +234,7 @@ paths:
             type: string
       responses:
         200:
-          description: "The request was succesfully completed."
+          description: "OK"
           content:
             application/json:
               schema:
@@ -311,34 +243,10 @@ paths:
           $ref: "#/components/responses/bad_request"
         401:
           $ref: "#/components/responses/unauthorized"
-        404:
-          $ref: "#/components/responses/not_found"
-        default:
-          $ref: "#/components/responses/internal_server_error"
-
-    delete:
-      tags:
-        - "orders"
-      summary: "Disables order. User can only do it before it changes status to confirmed. Admin can do it at any step."
-      operationId: "deleteOrder"
-      parameters:
-        - name: id
-          in: path
-          description: "order id"
-          required: true
-          schema: 
-            type: string
-      responses:
-        200:
-          $ref: "#/components/responses/succesful_request"
-        400:
-          $ref: "#/components/responses/bad_request"
-        401:
-          $ref: "#/components/responses/unauthorized"
         403:
           $ref: "#/components/responses/forbidden"
         404:
-          $ref: "#/components/responses/not_found"
+          description: "ID {id_order} not found"
         default:
           $ref: "#/components/responses/internal_server_error"
 
@@ -387,19 +295,17 @@ paths:
                 $ref: "#/components/schemas/product_list"
         401:
           $ref: "#/components/responses/unauthorized"
-        404:
-          $ref: "#/components/responses/not_found"
         default:
           $ref: "#/components/responses/internal_server_error"
    
-  /products/:idProduct:
+  /products/{id_product}:
     get:
       tags:
         - "products"
       summary: "Gets product by id."
       operationId: "getProduct"
       parameters:
-        - name: id
+        - name: id_product
           in: path
           description: "product id"
           required: true
@@ -407,15 +313,17 @@ paths:
             type: string
       responses:
         200:
-          description: "The request was succesfully completed."
+          description: "OK"
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/created_product"
-        400:
-          $ref: "#/components/responses/bad_request"
+                $ref: "#/components/schemas/full_product"
+        401:
+          $ref: "#/components/responses/unauthorized"
         404:
-          $ref: "#/components/responses/not_found"        
+          description: "ID {id_product} not found"
+        409:
+          description: "Product is disabled"        
         default:
           $ref: "#/components/responses/internal_server_error"
      
@@ -425,7 +333,7 @@ paths:
       summary: "Modifies product data. Admin access only."
       operationId: "modifyProduct"
       parameters:
-        - name: id
+        - name: id_product
           in: path
           description: "product id"
           required: true
@@ -436,14 +344,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/new_product"
+              $ref: "#/components/schemas/modified_product"
       responses:
         200:
           description: "OK"
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/created_product"
+                $ref: "#/components/schemas/full_product"
         400:
           $ref: "#/components/responses/bad_request"
         401:
@@ -451,7 +359,7 @@ paths:
         403:
           $ref: "#/components/responses/forbidden"
         404:
-          description: "ID {id_product} doesn't exist"       
+          description: "ID {id_product} not found"       
         default:
           $ref: "#/components/responses/internal_server_error"
 
@@ -461,7 +369,7 @@ paths:
       summary: "Disables product (does not delete). Admin access only."
       operationId: "disableProduct"
       parameters:
-        - name: id
+        - name: id_product
           in: path
           description: "product id"
           required: true
@@ -469,13 +377,17 @@ paths:
             type: string
       responses:
         200:   
-          $ref: "#/components/responses/succesful_request"
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/full_product"
         401:
           $ref: "#/components/responses/unauthorized"
         403:
           $ref: "#/components/responses/forbidden"
         404:
-          $ref: "#/components/responses/not_found"
+          description: "ID {id_product} not found"
         default:
           $ref: "#/components/responses/internal_server_error"
         
@@ -579,12 +491,6 @@ components:
           type: string
           example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
     
-    admin:
-      type: object
-      properties:
-        admin:
-          type: boolean
-          example: true
 
   # order related
     new_order:
@@ -633,6 +539,21 @@ components:
           type: integer
           format: int64
           example: 16
+        username:
+          type: string
+          example: pepegrillo
+        full_name:
+          type: string
+          example: Pepe Grillo
+        email:
+          type: string
+          example: pepegrillo@losgrillos.com
+        phone_number:
+          type: integer
+          example: 1125467465
+        adress:
+          type: string
+          example: Calle Falsa 123
 
     order_list:
       type: array
@@ -646,15 +567,12 @@ components:
         name:
           type: string
           example: Hamburguesa King
-        price:
-          type: number
-          example: 450
         image_url:
           type: string
           example: https://cocina-casera.com/wp-content/uploads/2016/11/hamburguesa-queso-receta.jpg
-        stock:
+        price:
           type: number
-          example: 200
+          example: 450
 
     created_product:
       type: object
@@ -666,15 +584,45 @@ components:
         name:
           type: string
           example: Hamburguesa King
-        price:
-          type: number
-          example: 390
         image_url:
           type: string
           example: https://cocina-casera.com/wp-content/uploads/2016/11/hamburguesa-queso-receta.jpg
-        stock:
+        price:
           type: number
+          example: 390
+
+    full_product:
+      type: object
+      properties:
+        id_product:
+          type: integer
+          format: int64
           example: 10
+        name:
+          type: string
+          example: Hamburguesa King
+        image_url:
+          type: string
+          example: https://cocina-casera.com/wp-content/uploads/2016/11/hamburguesa-queso-receta.jpg
+        price:
+          type: number
+          example: 390
+        enabled:
+          type: boolean
+          example: true
+    
+    modified_product:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Hamburguesa King
+        image_url:
+          type: string
+          example: https://cocina-casera.com/wp-content/uploads/2016/11/hamburguesa-queso-receta.jpg
+        price:
+          type: number
+          example: 390
         enabled:
           type: boolean
           example: true
@@ -706,23 +654,23 @@ components:
         $ref: "#/components/schemas/created_product"
 
 
-  responses: #borrar las que no se usen al final
+  responses:
     succesful_request: #200
       description: "OK"
     created: #201
       description: "Created"
     bad_request: #400
-      description: "Please fill in all the fields"
+      description: "Bad request"
     unauthorized: #401
-      description: "Please log in to continue."
+      description: "Please log in to continue"
     forbidden: #403
-      description: "Forbidden: user is not admin."
+      description: "Forbidden: user is not admin"
     not_found: #404
-      description: "The requested resource was not found."
+      description: "The requested resource was not found"
     conflict: #409 
-      description: "The request could not be completed due to a conflict."
+      description: "The request could not be completed due to a conflict"
     internal_server_error: #500 / default
-      description: "The request was not completed due to an internal error on the server side."
+      description: "The request was not completed due to an internal error on the server side"
 
 
           
