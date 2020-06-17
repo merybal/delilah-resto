@@ -232,6 +232,12 @@ paths:
           required: true
           schema: 
             type: string
+      requestBody:
+        description: "new status"
+        content:
+          application/json:
+            schema:
+             $ref: "#/components/schemas/new_status"
       responses:
         200:
           description: "OK"
@@ -626,6 +632,14 @@ components:
         enabled:
           type: boolean
           example: true
+    
+    new_status:
+      type: object
+      properties:
+        id_status:
+          type: integer
+          format: int64
+          example: 3
 
     ordered_product:
       type: object
@@ -671,7 +685,15 @@ components:
       description: "The request could not be completed due to a conflict"
     internal_server_error: #500 / default
       description: "The request was not completed due to an internal error on the server side"
+ 
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
 
+security:
+  - bearerAuth: []
 
           
           
