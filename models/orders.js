@@ -47,8 +47,30 @@ class Orders {
     read(ids) {
         ids.forEach(function(id) {
             this.readId(id[i].id_order)
-        })
+        });
     };
+
+    userRead(id_user) {
+        const orderList = this.sequelize.query(
+            `SELECT
+                orders.id_order,
+                status.status,
+                orders.time_stamp,
+                orders.total_price,
+                payment_methods.payment_method,
+                orders.id_user
+            FROM orders
+            JOIN status USING (id_status)
+            JOIN payment_methods USING (id_payment_method)
+            WHERE orders.id_user = :id_user`,
+                { replacements: {
+                    id_user
+                    },
+                type: this.sequelize.QueryTypes.SELECT    
+                }
+        );
+        return orderList;
+    }
 
     //Returns order with specified ID
     readId(id_order) {
@@ -93,6 +115,20 @@ class Orders {
         );
         return products;
     };
+
+    updateStatus(id_order, id_status) {
+        const order = this.sequelize.query(
+            `UPDATE orders
+             SET id_status = :id_status
+             WHERE id_order = :id_order`,
+                { replacements: {
+                    id_status,
+                    id_order
+                    }
+                }
+        );
+        return order;
+    }
     
 };
 

@@ -82,13 +82,15 @@ paths:
         required: true
       responses:
         200:
-          description: "The request was succesfully completed."
+          description: "OK"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/token"
         400:
-          $ref: "#/components/responses/bad_request"
+          description: "Incorrect username or password"
+        409:
+          description: "User disabled"
         default:
           $ref: "#/components/responses/internal_server_error"
 
@@ -374,11 +376,11 @@ paths:
     get:
       tags:
         - "products"
-      summary: "Returns a list of the existing products."
+      summary: "Returns a list of the existing products. Admin gets full list, user gets only enabled products"
       operationId: "listProducts"
       responses:
         200:
-          description: "The request was succesfully completed."
+          description: "OK"
           content:
             application/json:
               schema:
@@ -563,11 +565,9 @@ components:
       type: object
       properties:
         username:
+          description: 'username or email'
           type: string
           example: pepegrillo
-        email:
-          type: string
-          example: pepegrillo@losgrillos.com
         password:
           type: string
           example: mySup3rSecr3tPass12
@@ -714,9 +714,9 @@ components:
     bad_request: #400
       description: "Please fill in all the fields"
     unauthorized: #401
-      description: "The request did not include an authentication token or the authentication token was expired."
+      description: "Please log in to continue."
     forbidden: #403
-      description: "The client did not have permission to access the requested resource."
+      description: "Forbidden: user is not admin."
     not_found: #404
       description: "The requested resource was not found."
     conflict: #409 

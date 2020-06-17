@@ -23,6 +23,20 @@ class Users {
         return newUser;
     };
 
+    login(username, password) {
+        const user = this.sequelize.query(
+            `SELECT * FROM users
+            WHERE (username = :username OR email = :username) AND password = :password`,
+                { replacements: {
+                    username,
+                    password
+                    },
+                    type: this.sequelize.QueryTypes.SELECT
+                }
+        );
+        return user;
+    }
+
     //Returns full user list
     read() {
         const userList = this.sequelize.query(
