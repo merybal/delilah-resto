@@ -1,5 +1,3 @@
-//const sequelize = require('../data-base/sequelize.js')
-
 class Users {
     constructor (sequelize) {
         this.sequelize = sequelize;
@@ -23,6 +21,7 @@ class Users {
         return newUser;
     };
 
+    //Checks if username and password combination exists
     login(username, password) {
         const user = this.sequelize.query(
             `SELECT * FROM users
@@ -59,6 +58,7 @@ class Users {
         return user;
     };
 
+    //Gives user admin privileges
     updateAdminPrivileges(id_user) {
         const adminUser = this.sequelize.query(
             `UPDATE users

@@ -21,8 +21,18 @@ class Middleware {
             ) {
                 next();
         } else {
-            res.status(400).json({error: 'Please fill in all the fields'});
+            res.status(400).json({error: 'Bad request'});
         };
+    };
+
+    //Cheks if there are fields missing in user login
+    logInDataMissing = (req, res, next) => {
+        const { username, password } = req.body;
+        if (username != null && password != null) {
+            next();
+        } else {
+            res.status(400).json({error: 'Bad request'});
+        }
     };
 
     //Checks if user ID exists
@@ -30,23 +40,13 @@ class Middleware {
         const { idUser } = req.params;
         const exist = await this.users.readId(idUser);
         if (exist.length == 0) {
-            res.status(404).json({error: `ID ${idUser} doesn't exist`})
+            res.status(404).json({error: `ID ${idUser} not found`})
         } else {
             next();
-        };
-    };
-
-    //Checks if user is enabled
-    userIsEnabled = async (req, res, next) => {
-        const { username, password } = req.body;
-        const exist = await this.users.login(username, password);
-        if (exist.length != 0 && exist[0].enabled == true) {
-            next();
-        } else {
-            res.status(409).json({ error: "User disabled"});
         };
     };
     
+    //Checks if user is admin
     userIsAdmin = (req, res, next) => {
         const { admin } = req.user;
         if (admin == false) {
@@ -73,15 +73,16 @@ class Middleware {
 
     //Checks if there are fields missing in product POST
     productInputDataMissing = (req, res, next) => {
-        const { name, image_url, price, stock } = req.body;
+        const { name, image_url, price, enabled } = req.body;
         if (
             name != null && 
             image_url != null && 
-            price != null
+            price != null &&
+            enabled != null
             ) {
                 next();
         } else {
-            res.status(400).json({error: 'Please fill in all the fields'});
+            res.status(400).json({error: 'Bad request'});
         }; 
     };
 
@@ -90,16 +91,16 @@ class Middleware {
         const { idProduct } = req.params;
         const exist = await this.products.readId(idProduct);
         if (exist.length == 0) {
-            res.status(404).json({error: `ID ${idProduct} doesn't exist`});
+            res.status(404).json({error: `ID ${idProduct} not found`});
         } else {
             next();
         };
     };
 
+    //Checks if product is enabled
     productIsEnabled = async (req, res, next) => {
         const { idProduct } = req.params;
         const { admin } = req.user;
-        console.log('admin' + admin);
         const product = await this.products.readId(idProduct);
         if (product[0].enabled == false) {
             if (admin == false) {
@@ -112,6 +113,7 @@ class Middleware {
         };
     };
 
+    //Checks if there are fields missing in order POST
     orderInputDataMissing = (req, res, next) => {
         const { products, total_price, id_payment_method, id_user } = req.body;
         if (
@@ -122,17 +124,28 @@ class Middleware {
         ) {
             next();
         } else {
-            res.status(400).json({error: 'Please fill in all the fields'});
+            res.status(400).json({error: 'Bad request'});
         };
     };
 
+    //Checks if order id exists
     orderDoesntExist = async (req, res, next) => {
         const { idOrder } = req.params;
         const exist = await this.orders.readId(idOrder);
         if (exist.length == 0) {
-            res.status(404).json({error: `ID ${idOrder} doesn't exist`});
+            res.status(404).json({error: `ID ${idOrder} not found`});
         } else {
             next();
+        }
+    };
+
+    //Checks if there is status input data missing on order PATCH
+    statusInputDataMissing = (req, res, next) => {
+        const { id_status } = req.body;
+        if (id_status != null) {
+            next();
+        } else {
+            res.status(400).json({error: 'Bad request'});
         }
     }
 }

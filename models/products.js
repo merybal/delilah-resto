@@ -27,6 +27,7 @@ class Products {
         return productList;
     };
 
+    //Returns specific user's orders
     userRead() {
         const productList = this.sequelize.query(
             `SELECT * FROM products WHERE enabled = :enabled`,

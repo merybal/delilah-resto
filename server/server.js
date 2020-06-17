@@ -14,7 +14,6 @@ const modelOrders = require('../models/orders.js');
 const orders = new modelOrders.Orders(sequelize);
 const modelMiddleware = require('../models/middleware.js');
 const middleware = new modelMiddleware.Middleware(sequelize, users, products, orders, config, jwt);
-//http://localhost/phpmyadmin/
 
 server.use(bodyParser.json());
 
@@ -48,20 +47,26 @@ server.get('/users', middleware.validateToken, middleware.userIsAdmin, async (re
 
 //Path /users/login
 //POST: logs in user.
-server.post('/users/login', middleware.userIsEnabled, async (req, res) => {
+server.post('/users/login', middleware.logInDataMissing, async (req, res) => {
     const { username, password } = req.body;
     let user = await users.login(username, password);
     if (user.length != 0) {
-        const payload = {
-            id_user: user[0].id_user,
-            username: user[0].username,
-            full_name: user[0].full_name,
-            email: user[0].email,
-            admin: user[0].admin,
-            enabled: user[0].enabled
-        };
-        const token = jwt.sign(payload, config.secret);
-        res.status(200).json({ token });
+        if (user[0].enabled == 1) {
+            const payload = {
+                id_user: user[0].id_user,
+                username: user[0].username,
+                full_name: user[0].full_name,
+                email: user[0].email,
+                phone_number: user[0].phone_number,
+                adress: user[0].adress,
+                admin: user[0].admin,
+                enabled: user[0].enabled
+            };
+            const token = jwt.sign(payload, config.secret, { expiresIn: 1440});
+            res.status(200).json({ token });
+        } else {
+            res.status(409).json({ error: "User disabled"});
+        }
     } else {
         res.status(400).json({ error: 'Incorrect username or password'});
     };
@@ -70,7 +75,7 @@ server.post('/users/login', middleware.userIsEnabled, async (req, res) => {
 
 //Path /users/:idUser
 
-//GET: returns user with specified ID. Admin access only, unless the user is requesting their own data.
+//GET: returns user with specified ID. Admin access only, unless user is requesting their own data.
 server.get('/users/:idUser', middleware.userDoesntExist, middleware.validateToken, async (req, res) => {
     const { idUser } = req.params;
     const { id_user, admin } = req.user;
@@ -140,8 +145,8 @@ server.get('/products/:idProduct', middleware.productDoesntExist, middleware.val
 server.put('/products/:idProduct', middleware.productDoesntExist, middleware.validateToken, middleware.userIsAdmin, middleware.productInputDataMissing, async (req, res) => {
     try {
         const { idProduct } = req.params;
-        const { name, image_url, price } = req.body;
-        await products.update(idProduct, name, image_url, price);
+        const { name, image_url, price, enabled } = req.body;
+        await products.update(idProduct, name, image_url, price, enabled);
         const updatedProduct = await products.readId(idProduct);
         res.status(200).json(updatedProduct);
     } catch {
@@ -162,62 +167,36 @@ server.delete('/products/:idProduct', middleware.productDoesntExist, middleware.
 //POST: places a new order.
 server.post('/orders', middleware.orderInputDataMissing, middleware.validateToken, async (req, res) => {
     const { products, total_price, id_payment_method } = req.body;
-    const { id_user } = req.user;
+    const { id_user, username, full_name, email, phone_number, adress } = req.user;
     const newOrder = await orders.create(total_price, id_payment_method, id_user);
     await orders.addProductsToOrder(newOrder[0], products);
     const createdOrder = await orders.readId(newOrder[0]);
     const orderProducts = await orders.readOrderProducts(newOrder[0]);
-    res.status(201).json({
-        id_order: createdOrder[0].id_order,
-        id_status: createdOrder[0].status,
-        time_stamp: createdOrder[0].time_stamp,
-        products: orderProducts,
-        total_price: createdOrder[0].total_price,
-        payment_method: createdOrder[0].payment_method,
-        id_user: createdOrder[0].id_user
-    });
+    const fullOrder = await orders.joinOrderData(createdOrder[0], orderProducts, username, full_name, email, phone_number, adress);
+    res.status(201).json(fullOrder);
 });
 
 //GET: returns order list. Admin gets full list, while user gets only their own orders.
 server.get('/orders', middleware.validateToken, async (req, res) => {
-    const { id_user, admin } = req.user;
+    const { id_user, username, full_name, email, phone_number, adress, admin } = req.user;
     if (admin == true) {
         const orderIds = await orders.readAllIds();
         let orderList = [];
         for (let i = 0; i < orderIds.length; i++) {
-            let orderDetails = await orders.readId(orderIds[i].id_order);
-            orderDetails = orderDetails[0];
-            const orderProducts = await orders.readOrderProducts(orderIds[i].id_order)
-            let userData = await users.readId(orderDetails.id_user);
+            const orderDetails = await orders.readId(orderIds[i].id_order);
+            const orderProducts = await orders.readOrderProducts(orderIds[i].id_order);
+            let userData = await users.readId(orderDetails[0].id_user);
             userData = userData[0];
-            const fullOrder = {
-                id_order: orderDetails.id_order,
-                id_status: orderDetails.id_status,
-                time_stamp: orderDetails.time_stamp,
-                products: orderProducts,
-                total_price: orderDetails.total_price,
-                payment_method: orderDetails.payment_method,
-                id_user: orderDetails.id_user,
-                full_name: userData.full_name,
-                adress: userData.adress
-            }
+            const fullOrder = await orders.joinOrderData(orderDetails[0], orderProducts, userData.username, userData.full_name, userData.email, userData.phone_number, userData.adress);
             orderList.push(fullOrder);
         };
         res.status(200).json(orderList);
     } else {
         const userOrders = await orders.userRead(id_user);
-        console.log(userOrders);
         let userOrderList = [];
         for (let i = 0; i < userOrders.length; i++) {
             const orderProducts = await orders.readOrderProducts(userOrders[i].id_order);
-            const fullOrder = {
-                id_order: userOrders[i].id_order,
-                id_status: userOrders[i].id_status,
-                time_stamp: userOrders[i].time_stamp,
-                products: orderProducts,
-                total_price: userOrders[i].total_price,
-                payment_method: userOrders[i].payment_method,
-            };
+            const fullOrder = orders.joinOrderData(userOrders[i], orderProducts, username, full_name, email, phone_number, adress);
             userOrderList.push(fullOrder);
         };
         res.status(200).json(userOrderList);
@@ -236,45 +215,28 @@ server.get('/orders/:idOrder', middleware.orderDoesntExist, middleware.validateT
             res.status(403).json({ error: 'Forbidden: user is not admin'});
         }
         const orderProducts = await orders.readOrderProducts(idOrder);
-        const userData = await users.readId(orderDetails.id_user);
-        const fullOrder = {
-            id_order: orderDetails.id_order,
-            id_status: orderDetails.id_status,
-            time_stamp: orderDetails.time_stamp,
-            products: orderProducts,
-            total_price: orderDetails.total_price,
-            payment_method: orderDetails.payment_method,
-            id_user: orderDetails.id_user,
-            full_name: userData[0].full_name,
-            adress: userData[0].adress
-        };
+        let userData = await users.readId(orderDetails.id_user);
+        userData = userData[0];
+        const fullOrder = await orders.joinOrderData(orderDetails, orderProducts, userData.username, userData.full_name, userData.email, userData.phone_number, userData.adress);
         res.status(200).json(fullOrder);
     } else {
         const orderProducts = await orders.readOrderProducts(idOrder);
-        const userData = await users.readId(orderDetails.id_user);
-        const fullOrder = {
-            id_order: orderDetails.id_order,
-            id_status: orderDetails.id_status,
-            time_stamp: orderDetails.time_stamp,
-            products: orderProducts,
-            total_price: orderDetails.total_price,
-            payment_method: orderDetails.payment_method,
-            id_user: orderDetails.id_user,
-            full_name: userData[0].full_name,
-            adress: userData[0].adress
-        };
+        let userData = await users.readId(orderDetails.id_user);
+        userData = userData[0];
+        const fullOrder = await orders.joinOrderData(orderDetails, orderProducts, userData.username, userData.full_name, userData.email, userData.phone_number, userData.adress);
         res.status(200).json(fullOrder);
     };
 });
 
 //PATCH: updates order status. Admin access only.
-server.patch('/orders/:idOrder', middleware.orderDoesntExist, middleware.validateToken, middleware.userIsAdmin, async (req, res) => {
+server.patch('/orders/:idOrder', middleware.orderDoesntExist, middleware.validateToken, middleware.userIsAdmin, middleware.statusInputDataMissing, async (req, res) => {
     const { idOrder } = req.params;
     const { id_status } = req.body;
     await orders.updateStatus(idOrder, id_status);
     const updatedOrder = await orders.readId(idOrder);
     res.status(200).json(updatedOrder);
 });
+
 
 server.listen(port, () => {
     console.log('Servidor Iniciado');

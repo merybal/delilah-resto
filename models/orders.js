@@ -116,6 +116,26 @@ class Orders {
         return products;
     };
 
+    //Puts together all order data in an object
+    joinOrderData(createdOrder, orderProducts, username, full_name, email, phone_number, adress) {
+        const fullOrder = {
+            id_order: createdOrder.id_order,
+            id_status: createdOrder.status,
+            time_stamp: createdOrder.time_stamp,
+            products: orderProducts,
+            total_price: createdOrder.total_price,
+            payment_method: createdOrder.payment_method,
+            id_user: createdOrder.id_user,
+            username: username,
+            full_name: full_name,
+            email: email,
+            phone_number: phone_number,
+            adress: adress
+        };
+        return fullOrder;
+    };
+
+    //Updates order status
     updateStatus(id_order, id_status) {
         const order = this.sequelize.query(
             `UPDATE orders
@@ -128,7 +148,7 @@ class Orders {
                 }
         );
         return order;
-    }
+    };
     
 };
 
