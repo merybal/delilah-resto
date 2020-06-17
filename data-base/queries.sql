@@ -1,4 +1,4 @@
-CREATE DATABASE delilah_resto;
+CREATE DATABASE delilahresto;
 
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS products;
@@ -27,12 +27,12 @@ CREATE TABLE products (
     id_product INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR (255) NOT NULL UNIQUE,
     image_url VARCHAR (255) NOT NULL,
-    price INT NOT NULL
+    price INT NOT NULL,
     enabled BOOLEAN NOT NULL DEFAULT TRUE
 );
 
-INSERT INTO products (id_product, name, image_url, price, stock, enabled)
-    VALUES (1, "Hamburguesa King", "https://cocina-casera.com/wp-content/uploads/2016/11/hamburguesa-queso-receta.jpg", 350, 10, true);
+INSERT INTO products (id_product, name, image_url, price, enabled)
+    VALUES (1, "Hamburguesa King", "https://cocina-casera.com/wp-content/uploads/2016/11/hamburguesa-queso-receta.jpg", 350, true);
 --
 
 CREATE TABLE status (
