@@ -1,2 +1,2 @@
-const secret = 'insertaTuKey';
+const secret = 'insertYourKey';
 module.exports = { secret };
