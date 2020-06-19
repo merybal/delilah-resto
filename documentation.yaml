@@ -223,7 +223,7 @@ paths:
     patch: 
       tags:
         - "orders"
-      summary: "Modifies order status. Admin access only."
+      summary: "Modifies order status from 1 to 5. Admin access only."
       operationId: "modifyOrder"
       parameters:
         - name: id_order
@@ -244,7 +244,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/created_order"
+                $ref: "#/components/schemas/updated_order"
         400:
           $ref: "#/components/responses/bad_request"
         401:
@@ -253,6 +253,36 @@ paths:
           $ref: "#/components/responses/forbidden"
         404:
           description: "ID {id_order} not found"
+        409:
+          description: "Please select id_status from 1 to 5"
+        default:
+          $ref: "#/components/responses/internal_server_error"
+
+    delete:
+      tags:
+        - "orders"
+      summary: "Updates order status to CANCELED. Admin access only."
+      operationId: "cancelOrder"
+      parameters:
+        - name: id_order
+          in: path
+          description: "order id"
+          required: true
+          schema:
+            type: string
+      responses:
+        200:   
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/deleted_order"
+        401:
+          $ref: "#/components/responses/unauthorized"
+        403:
+          $ref: "#/components/responses/forbidden"
+        404:
+          description: "ID {id_product} not found"
         default:
           $ref: "#/components/responses/internal_server_error"
 
@@ -561,6 +591,56 @@ components:
           type: string
           example: Calle Falsa 123
 
+    updated_order: 
+      type: object
+      properties:
+        id_order: 
+          type: integer
+          format: int64
+          example: 16
+        status:
+          type: string
+          example: PREPARANDO
+        time_stamp:
+          type: string
+          format: date-time
+          example: "2020-05-26 21:02:15"
+        total_price:
+          type: integer
+          example: 390
+        id_payment_method:
+          type: number
+          example: 1
+        id_user:
+          type: integer
+          format: int64
+          example: 16
+
+    deleted_order:
+      type: object
+      properties:
+        id_order: 
+          type: integer
+          format: int64
+          example: 16
+        status:
+          type: string
+          example: CANCELADO
+        time_stamp:
+          type: string
+          format: date-time
+          example: "2020-05-26 21:02:15"
+        total_price:
+          type: integer
+          example: 390
+        id_payment_method:
+          type: number
+          example: 1
+        id_user:
+          type: integer
+          format: int64
+          example: 16
+
     order_list:
       type: array
       items:
@@ -579,6 +659,9 @@ components:
         price:
           type: number
           example: 450
+        enabled:
+          type: boolean
+          example: true
 
     created_product:
       type: object

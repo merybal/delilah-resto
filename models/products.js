@@ -4,14 +4,15 @@ class Products {
     };
 
     //Creates new product
-    create(name, image_url, price) {
+    create(name, image_url, price, enabled) {
         const newProduct = this.sequelize.query(
-            `INSERT INTO products (name, image_url, price)
-            VALUES (:name, :image_url, :price)`,
+            `INSERT INTO products (name, image_url, price, enabled)
+            VALUES (:name, :image_url, :price, :enabled)`,
                 { replacements: {
                     name, 
                     image_url,
-                    price
+                    price,
+                    enabled
                     }
                 }
         );

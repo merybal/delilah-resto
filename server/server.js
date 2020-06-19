@@ -3,7 +3,7 @@ const server = express();
 const port = 3000;
 const bodyParser = require('body-parser');
 const Sequelize = require('sequelize');
-const sequelize = new Sequelize('mysql://root@localhost:3306/delilah_resto');
+const sequelize = new Sequelize('mysql://root@localhost:3306/delilahresto');
 const jwt = require('jsonwebtoken');
 const config = require('../configurations/configurations.js');
 const modelUsers = require('../models/users.js');
@@ -104,17 +104,18 @@ server.patch('/users/:idUser', middleware.userDoesntExist, middleware.validateTo
 
 //POST: Creates a new product. Admin access only.
 server.post('/products', middleware.validateToken, middleware.userIsAdmin, middleware.productInputDataMissing, async (req, res) => {
-    const { name, image_url, price } = req.body;
+    const { name, image_url, price, enabled} = req.body;
     try {
-        const productId = await products.create(name, image_url, price);
+        const productId = await products.create(name, image_url, price, enabled);
         let product = await products.readId(productId[0]);
         product = product[0];
         res.status(201).json({
             id_product: product.id_product,
             name: product.name,
             image_url: product.image_url,
-            price: product.price
-        })
+            price: product.price,
+            enabled: product.enabled
+        });
     } catch {
         res.status(409).send('Product name already in use');
     };
@@ -228,14 +229,26 @@ server.get('/orders/:idOrder', middleware.orderDoesntExist, middleware.validateT
     };
 });
 
-//PATCH: updates order status. Admin access only.
+//PATCH: updates order status, works from id_status 1 to 5. Admin access only.
 server.patch('/orders/:idOrder', middleware.orderDoesntExist, middleware.validateToken, middleware.userIsAdmin, middleware.statusInputDataMissing, async (req, res) => {
     const { idOrder } = req.params;
     const { id_status } = req.body;
-    await orders.updateStatus(idOrder, id_status);
+    if (id_status != 0 && id_status <= 5) {
+        await orders.updateStatus(idOrder, id_status);
+        const updatedOrder = await orders.readId(idOrder);
+        res.status(200).json(updatedOrder);
+    } else {
+        res.status(409).json({ error: 'Please select id_status from 1 to 5' });
+    };
+});
+
+//DELETE: updates order status to CANCELED. Admin access only.
+server.delete('/orders/:idOrder', middleware.orderDoesntExist, middleware.validateToken, middleware.userIsAdmin, async (req, res) => {
+    const { idOrder } = req.params;
+    await orders.delete(idOrder);
     const updatedOrder = await orders.readId(idOrder);
     res.status(200).json(updatedOrder);
-});
+})
 
 
 server.listen(port, () => {

@@ -150,6 +150,20 @@ class Orders {
         return order;
     };
     
+    delete(id_order) {
+        console.log('entró')
+        let order = this.sequelize.query(
+            `UPDATE orders
+             SET id_status = :id_status
+             WHERE id_order = :id_order`,
+                { replacements: {
+                    id_order,
+                    id_status: 6
+                    }
+                }
+        );
+        return order;
+    };
 };
 
 module.exports = { Orders };
