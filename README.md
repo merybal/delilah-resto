@@ -1,6 +1,6 @@
 # Delilah Restó
 
-Restful API created for a restaurant, to facilitate the management of users, orders and products. 
+Restful API developed for a restaurant, to facilitate the management of users, orders and products. 
 
 ## Dependencies
 - Node.js
