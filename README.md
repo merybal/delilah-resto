@@ -37,7 +37,7 @@ $ npm i dependency-name
 for each one of the dependencies.
 
 ### Step 3: Set JWT password
-Open /configurations/configurations.js and replace string  ```‘insertYourLey’```  with your preferred password, and save.
+Open /configurations/configurations.js and replace string  ```‘insertYourKey’```  with your preferred password, and save.
 
 ### Step 4: Setting up the data base
 Download and install XAMPP on your computer.
