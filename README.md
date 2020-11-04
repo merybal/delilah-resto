@@ -1,6 +1,6 @@
 # Delilah Restó
-
-Restful API created for a restaurant, to facilitate the management of users, orders and products. 
+Restful API developed for a restaurant, to facilitate the management of users, orders and products. 
+>>>>>>> 595059f1f24dbc0131e1da93febde353f5f67a06
 
 ## Dependencies
 - Node.js
@@ -37,7 +37,11 @@ $ npm i dependency-name
 for each one of the dependencies.
 
 ### Step 3: Set JWT password
+<<<<<<< HEAD
 Open /configurations/configurations.js and replace string  ```‘insertYourLey’```  with your preferred password, and save.
+=======
+Open /configurations/configurations.js and replace string  ```‘insertYourKey’```  with your preferred password, and save.
+>>>>>>> 595059f1f24dbc0131e1da93febde353f5f67a06
 
 ### Step 4: Setting up the data base
 Download and install XAMPP on your computer.
@@ -61,4 +65,8 @@ to run your server.
 ### Step 6: Use the API!
 Server is up and running!
 
+<<<<<<< HEAD
 You can test the endpoints using POSTMAN, importing this collection: ```https://www.getpostman.com/collections/89471870a1520d5755ce``` .
+=======
+You can test the endpoints using POSTMAN, importing this collection: ```https://www.getpostman.com/collections/89471870a1520d5755ce``` .
+>>>>>>> 595059f1f24dbc0131e1da93febde353f5f67a06
