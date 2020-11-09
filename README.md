@@ -1,6 +1,5 @@
 # Delilah Restó
 Restful API developed for a restaurant, to facilitate the management of users, orders and products. 
->>>>>>> 595059f1f24dbc0131e1da93febde353f5f67a06
 
 ## Dependencies
 - Node.js
