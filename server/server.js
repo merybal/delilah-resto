@@ -6,13 +6,13 @@ const Sequelize = require('sequelize');
 const sequelize = new Sequelize('mysql://root@localhost:3306/delilahresto');
 const jwt = require('jsonwebtoken');
 const config = require('../configurations/configurations.js');
-const modelUsers = require('../models/users.js');
+const modelUsers = require('../models/user_model.js');
 const users = new modelUsers.Users(sequelize);
-const modelProducts = require('../models/products.js');
+const modelProducts = require('../models/product_model.js');
 const products = new modelProducts.Products(sequelize);
-const modelOrders = require('../models/orders.js');
+const modelOrders = require('../models/order_model.js');
 const orders = new modelOrders.Orders(sequelize);
-const modelMiddleware = require('../models/middleware.js');
+const modelMiddleware = require('../models/middleware_model.js');
 const middleware = new modelMiddleware.Middleware(sequelize, users, products, orders, config, jwt);
 
 server.use(bodyParser.json());
