@@ -60,8 +60,4 @@ to run your server.
 ### Step 6: Use the API!
 Server is up and running!
 
-<<<<<<< HEAD
 You can test the endpoints using POSTMAN, importing this collection: ```https://www.getpostman.com/collections/89471870a1520d5755ce``` .
-=======
-You can test the endpoints using POSTMAN, importing this collection: ```https://www.getpostman.com/collections/89471870a1520d5755ce``` .
->>>>>>> 595059f1f24dbc0131e1da93febde353f5f67a06
