@@ -22,7 +22,7 @@ Specifications can be copied on the Swagger Editor here (https://editor.swagger.
 ### Step 1: Clone repository
 Clone the project repository from your terminal:
 ```
-$ git clone https://github.com/merybal/delila-resto.git
+git clone https://github.com/merybal/delila-resto.git
 ```
 or directly from GitHub.
 
@@ -31,7 +31,7 @@ Download and install Node.js on your computer.
 
 Access from your terminal the directory where you stored the repository on your computer and type:
 ```
-$ npm i dependency-name
+npm i dependency-name
 ```
 for each one of the dependencies.
 
@@ -53,7 +53,7 @@ IMPORTANT: The initial queries insert an example into each table, including the 
 ### Step 5: Run server
 On your terminal, access /server and type
 ```
-$ node server.js
+node server.js
 ```
 to run your server.
 
